@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const categorySchema = new  Schema({
+const companySchema = new  Schema({
+    description:{
+        type: String,
+        required: true,
+    },
     id: {
         type: Number,
         required: true,
@@ -12,5 +16,5 @@ const categorySchema = new  Schema({
         required: true,
     },
 });
-const Categories = mongoose.model('categories',categorySchema);
-mode.exports= Categories;
+const Companies = mongoose.model('companies',companySchema);
+module.exports= Companies;

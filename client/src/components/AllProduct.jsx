@@ -21,7 +21,7 @@ const AllProduct = () => {
       //   console.error('Error fetching products', error);
       // }
 
-      fetch('/api/products')
+      fetch('http://localhost:9999/api/getproducts')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

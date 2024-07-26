@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
 import { Container, Grid, Pagination, Box, FormControl, InputLabel, Select, MenuItem, Slider, Typography } from '@mui/material';
 import ProductCard from './ProductCard';
+import AddProductDialog from './AddProductDialog'; // Import the component
+
 
 // const UnsplashAccessKey = 'aVhwloBHIg3J6I1FchuFQt-rr1kwoHJR-lpfzPYBjnI';
 
@@ -22,11 +24,11 @@ const Spotlight = () => {
   });
 
   const updateURL = () => {
-    let productURL = '/api';
+    let productURL = 'http://localhost:9999/api';
     if (filters.company) productURL += `/companies/${filters.company}`;
     if (filters.category) productURL += `/categories/${filters.category}`;
 
-    productURL += '/products';
+    productURL += '/getproducts';
     if (filters.price[0] !== 0) productURL += `?minPrice=${filters.price[0]}`;
 
     if (filters.price[1] !== 5000) {
@@ -45,7 +47,7 @@ const Spotlight = () => {
 
   useEffect(()=>{
     const fetchCategories = async () => {
-      fetch('/api/categories')
+      fetch('http://localhost:9999/api/categories')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -68,7 +70,7 @@ const Spotlight = () => {
     };
 
     const fetchCompanies = async () => {
-      fetch('/api/companies')
+      fetch('http://localhost:9999/api/companies')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -320,6 +322,8 @@ const Spotlight = () => {
           </Grid>
         </Grid>
       </Box>
+      <AddProductDialog />
+
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={4}>
           {currentItems.map(product => (
