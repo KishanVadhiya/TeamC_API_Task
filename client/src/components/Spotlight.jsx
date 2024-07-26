@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
 import { Container, Grid, Pagination, Box, FormControl, InputLabel, Select, MenuItem, Slider, Typography } from '@mui/material';
 import ProductCard from './ProductCard';
+import AddProductDialog from './AddProductDialog'; // Import the component
+
 
 // const UnsplashAccessKey = 'aVhwloBHIg3J6I1FchuFQt-rr1kwoHJR-lpfzPYBjnI';
 
@@ -320,6 +322,8 @@ const Spotlight = () => {
           </Grid>
         </Grid>
       </Box>
+      <AddProductDialog />
+
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={4}>
           {currentItems.map(product => (
