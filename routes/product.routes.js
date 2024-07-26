@@ -12,6 +12,8 @@ router.get('/getproducts', getproducts);
 router.post('/addproduct', addproduct);
 router.put('/updateproduct', updateproduct);
 router.delete('/deleteproduct', deleteproduct);
+
+
 router.get('/categories', getCategories);
 router.get('/companies', getCompanies);
 

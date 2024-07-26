@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import {
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Button, TextField, FormControl, InputLabel, Select, MenuItem
+  Button, TextField, FormControl, InputLabel, Select, MenuItem, Snackbar,
+  Alert
 } from '@mui/material';
+import axios from 'axios';
 
 const AddProductDialog = ({ onAddProduct }) => {
   const [open, setOpen] = useState(false);
   const [product, setProduct] = useState({
-    name: '',
+    productName: '',
     category: '',
     price: '',
     company: '',
+    id: 8797,
     availability: '',
     discount: '',
     rating: '',
   });
-
   const [companies, setCompanies] = useState([
     { description: "Amazon", id: 1, name: "AMZ" },
     { description: "Flipkart", id: 2, name: "FLP" },
@@ -23,7 +25,6 @@ const AddProductDialog = ({ onAddProduct }) => {
     { description: "Myntra", id: 4, name: "MYN" },
     { description: "Amazon", id: 5, name: "AZO" }
   ]);
-
   const [categories, setCategories] = useState([
     { id: 1, name: "Phone" },
     { id: 2, name: "Computer" },
@@ -41,12 +42,14 @@ const AddProductDialog = ({ onAddProduct }) => {
     { id: 14, name: "Laptop" },
     { id: 15, name: "PC" }
   ]);
-
   const [newCompanyOpen, setNewCompanyOpen] = useState(false);
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newCompanyDescription, setNewCompanyDescription] = useState('');
   const [newCategory, setNewCategory] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -64,9 +67,21 @@ const AddProductDialog = ({ onAddProduct }) => {
     });
   };
 
-  const handleSubmit = () => {
-    onAddProduct(product);
-    handleClose();
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('http://localhost:9999/api/addproduct', product);
+      console.log('Product added successfully:', response.data);
+      if (onAddProduct) onAddProduct(response.data);
+      setSnackbarMessage('Product added successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      handleClose();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      setSnackbarMessage('Error adding product.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   const handleAddCompany = () => {
@@ -86,6 +101,10 @@ const AddProductDialog = ({ onAddProduct }) => {
     setNewCategoryOpen(false);
   };
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <div>
       <Button variant="contained" color="primary" onClick={handleClickOpen}>
@@ -100,11 +119,11 @@ const AddProductDialog = ({ onAddProduct }) => {
           <TextField
             autoFocus
             margin="dense"
-            name="name"
-            label="Name"
+            name="productName"
+            label="Product Name"
             type="text"
             fullWidth
-            value={product.name}
+            value={product.productName}
             onChange={handleChange}
           />
           <FormControl fullWidth margin="dense">
@@ -241,6 +260,17 @@ const AddProductDialog = ({ onAddProduct }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
