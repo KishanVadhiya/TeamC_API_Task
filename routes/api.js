@@ -3,7 +3,7 @@ const router = express.Router();
 const fetch= require('node-fetch');
 const Products= require('../models/products.model');
 require('dotenv').config();
-const bytexlURL='https://json-server-c67opnddza-el.a.run.app';
+// const bytexlURL='https://json-server-c67opnddza-el.a.run.app';
 const fetchImages = (n) => {
     // console.log("Inside fetchImages");
     return fetch('https://api.unsplash.com/search/photos?query=electronics&per_page='+n, {

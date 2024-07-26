@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Products = require('../models/products.model.js');
-const e = require('express');
+const Companies = require('../models/companies.model.js');
+const Categories = require('../models/categories.model.js');
 
 
 const getproducts = async (req, res) => {
@@ -41,8 +42,33 @@ const deleteproduct = async (req, res) => {
     res.json({ message: 'Product deleted successfully' });
 }
 
+const getCategories = async (req, res) => {
+    try {
+        const categories = await Categories.find();
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+const getCompanies = async (req, res) => {
+    try {
+        const companies = await Companies.find();
+        res.status(200).json(companies);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
 
 
-module.exports = { getproducts, addproduct, updateproduct, deleteproduct };
+
+module.exports = { 
+    getproducts,
+    addproduct,
+    updateproduct,
+    deleteproduct,
+    getCategories,
+    getCompanies
+};
 
 //TODO: update, Delete, 

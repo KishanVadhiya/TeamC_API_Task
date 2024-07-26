@@ -17,4 +17,4 @@ const companySchema = new  Schema({
     },
 });
 const Companies = mongoose.model('companies',companySchema);
-mode.exports= Companies;
+module.exports= Companies;

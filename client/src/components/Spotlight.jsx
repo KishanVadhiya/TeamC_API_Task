@@ -24,11 +24,11 @@ const Spotlight = () => {
   });
 
   const updateURL = () => {
-    let productURL = '/api';
+    let productURL = 'http://localhost:9999/api';
     if (filters.company) productURL += `/companies/${filters.company}`;
     if (filters.category) productURL += `/categories/${filters.category}`;
 
-    productURL += '/products';
+    productURL += '/getproducts';
     if (filters.price[0] !== 0) productURL += `?minPrice=${filters.price[0]}`;
 
     if (filters.price[1] !== 5000) {
@@ -47,7 +47,7 @@ const Spotlight = () => {
 
   useEffect(()=>{
     const fetchCategories = async () => {
-      fetch('/api/categories')
+      fetch('http://localhost:9999/api/categories')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -70,7 +70,7 @@ const Spotlight = () => {
     };
 
     const fetchCompanies = async () => {
-      fetch('/api/companies')
+      fetch('http://localhost:9999/api/companies')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
