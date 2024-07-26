@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fetch= require('node-fetch');
-const Products= require('../models/products');
+const Products= require('../models/products.model');
 require('dotenv').config();
 const bytexlURL='https://json-server-c67opnddza-el.a.run.app';
 const fetchImages = (n) => {
@@ -67,6 +67,7 @@ const manageQueryParameter = (queryParamObj)=>{
     return (queryURL.slice(0,1) + queryURL.slice(2));
 
 };
+
 router.get('/products',(req,res,next)=>{
     // console.log('\n\n\n',req.originalUrl);
     fetch(`${bytexlURL}/products`)
@@ -239,6 +240,12 @@ router.post('/saveproduct',(req,res,next)=>{
             error:"Invalid input"
         });
     }
+});
+
+router.get('/getproducts',(req,res,next)=>{
+    Products.find({})
+            .then((data)=>res.json(data))
+            .catch(next);
 });
 
 

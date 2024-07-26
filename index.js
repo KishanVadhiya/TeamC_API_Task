@@ -2,39 +2,34 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const routes = require('./routes/api');
+const productRouter = require('./routes/product.routes.js');
 require('dotenv').config();
 
 const app = express();
+const port = process.env.PORT || 9999;
 
-const port = process.env?.PORT || 5000;
+// Middleware
 app.use(cors());
+app.use(bodyParser.json());
 
-// Connect to the database
-mongoose
-    .connect(process.env.MONGO_DB_URI, { useNewUrlParser: true })
+// Database Connection
+mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log(`Database connected successfully`))
     .catch((err) => console.log(err));
 
-// Since mongoose's Promise is deprecated, we override it with Node's Promise
+// Override mongoose's Promise with Node's Promise
 mongoose.Promise = global.Promise;
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-});
+// API Routes
+app.use('/api', productRouter);
 
-app.use(bodyParser.json());
-
-
-app.use('/api', routes);
-
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error handler:', err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+    res.status(500).json({ error: 'Something went wrong!' });
 });
 
+// Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
