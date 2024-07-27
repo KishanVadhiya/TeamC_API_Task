@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
   Button, TextField, FormControl, InputLabel, Select, MenuItem, Snackbar,
@@ -13,35 +13,13 @@ const AddProductDialog = ({ onAddProduct }) => {
     category: '',
     price: '',
     company: '',
-    id: 8797,
+    id: Math.floor(Math.random() * 1000),
     availability: '',
     discount: '',
     rating: '',
   });
-  const [companies, setCompanies] = useState([
-    { description: "Amazon", id: 1, name: "AMZ" },
-    { description: "Flipkart", id: 2, name: "FLP" },
-    { description: "Snapdeal", id: 3, name: "SNP" },
-    { description: "Myntra", id: 4, name: "MYN" },
-    { description: "Amazon", id: 5, name: "AZO" }
-  ]);
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Phone" },
-    { id: 2, name: "Computer" },
-    { id: 3, name: "TV" },
-    { id: 4, name: "Earphone" },
-    { id: 5, name: "Tablet" },
-    { id: 6, name: "Charger" },
-    { id: 7, name: "Mouse" },
-    { id: 8, name: "Keypad" },
-    { id: 9, name: "Bluetooth" },
-    { id: 10, name: "Pendrive" },
-    { id: 11, name: "Remote" },
-    { id: 12, name: "Speaker" },
-    { id: 13, name: "Headset" },
-    { id: 14, name: "Laptop" },
-    { id: 15, name: "PC" }
-  ]);
+  const [companies, setCompanies] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [newCompanyOpen, setNewCompanyOpen] = useState(false);
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState('');
@@ -50,6 +28,24 @@ const AddProductDialog = ({ onAddProduct }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  useEffect(() => {
+    const fetchCompaniesAndCategories = async () => {
+      try {
+        const [companiesResponse, categoriesResponse] = await Promise.all([
+          axios.get('http://localhost:9999/api/companies'),
+          axios.get('http://localhost:9999/api/categories')
+        ]);
+
+        setCompanies(companiesResponse.data);
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        console.error('Error fetching companies and categories:', error);
+      }
+    };
+
+    fetchCompaniesAndCategories();
+  }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -84,21 +80,46 @@ const AddProductDialog = ({ onAddProduct }) => {
     }
   };
 
-  const handleAddCompany = () => {
-    setCompanies([...companies, {
-      description: newCompanyDescription,
-      id: companies.length + 1,
-      name: newCompanyName
-    }]);
-    setNewCompanyName('');
-    setNewCompanyDescription('');
-    setNewCompanyOpen(false);
+  const handleAddCompany = async () => {
+    try {
+      const response = await axios.post('http://localhost:9999/api/addCompanies', {
+        name: newCompanyName,
+        description: newCompanyDescription,
+        id: Math.floor(Math.random() * 1000),
+      });
+      setCompanies([...companies, response.data]);
+      setNewCompanyName('');
+      setNewCompanyDescription('');
+      setNewCompanyOpen(false);
+      setSnackbarMessage('Company added successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error adding company:', error);
+      setSnackbarMessage('Error adding company.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
-  const handleAddCategory = () => {
-    setCategories([...categories, { id: categories.length + 1, name: newCategory }]);
-    setNewCategory('');
-    setNewCategoryOpen(false);
+  const handleAddCategory = async () => {
+    try {
+      const response = await axios.post('http://localhost:9999/api/addCategory', {
+        name: newCategory,
+        id: Math.floor(Math.random() * 1000),
+      });
+      setCategories([...categories, response.data]);
+      setNewCategory('');
+      setNewCategoryOpen(false);
+      setSnackbarMessage('Category added successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error adding category:', error);
+      setSnackbarMessage('Error adding category.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   const handleSnackbarClose = () => {
