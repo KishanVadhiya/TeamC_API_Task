@@ -1,19 +1,53 @@
 const mongoose = require('mongoose');
 const Products = require('../models/products.model.js');
-const Companies = require('../models/companies.model.js');
-const Categories = require('../models/categories.model.js');
 
 
 const getproducts = async (req, res) => {
+    const { category, company, availability, minPrice, maxPrice, minRating, sort } = req.query;
 
-    // TODO: Filter products by category, company, availability, discount, price, rating .    // SORTING
+    // Build the filter object
+    let filter = {};
+    if (category) filter.category = category;
+    if (company) filter.company = company;
+    if (availability) filter.availability = availability;
+    if (minPrice) filter.price = { ...filter.price, $gte: parseInt(minPrice) };
+    if (maxPrice) filter.price = { ...filter.price, $lte: parseInt(maxPrice) };
+    if (minRating) filter.rating = { ...filter.rating, $gte: parseInt(minRating) };
+
+    // Build the sort object
+    let sortBy = {};
+    switch (sort) {
+        case 'atoz':
+            sortBy.productName = 1;
+            break;
+        case 'ztoa':
+            sortBy.productName = -1;
+            break;
+        case 'ratings':
+            sortBy.rating = -1;
+            break;
+        case 'discount':
+            sortBy.discount = -1;
+            break;
+        case 'price-asc':
+            sortBy.price = 1;
+            break;
+        case 'price-desc':
+            sortBy.price = -1;
+            break;
+        default:
+            sortBy = {}; // No sorting
+            break;
+    }
+
     try {
-        const products = await Products.find();
+        const products = await Products.find(filter).sort(sortBy);
         res.status(200).json(products);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
+
 
 const addproduct = async (req, res) => {
     console.log(req.body);
@@ -38,26 +72,8 @@ const updateproduct = async (req, res) => {
 const deleteproduct = async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No product with that id');
-    await Products.findByIdAndRemove(id);
+    await Products.findByIdAndDelete(id);
     res.json({ message: 'Product deleted successfully' });
-}
-
-const getCategories = async (req, res) => {
-    try {
-        const categories = await Categories.find();
-        res.status(200).json(categories);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-};
-
-const getCompanies = async (req, res) => {
-    try {
-        const companies = await Companies.find();
-        res.status(200).json(companies);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
 }
 
 
@@ -67,8 +83,6 @@ module.exports = {
     addproduct,
     updateproduct,
     deleteproduct,
-    getCategories,
-    getCompanies
 };
 
 //TODO: update, Delete, 

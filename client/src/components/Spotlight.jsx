@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
 import { Container, Grid, Pagination, Box, FormControl, InputLabel, Select, MenuItem, Slider, Typography } from '@mui/material';
 import ProductCard from './ProductCard';
-import AddProductDialog from './AddProductDialog'; // Import the component
-
-
-// const UnsplashAccessKey = 'aVhwloBHIg3J6I1FchuFQt-rr1kwoHJR-lpfzPYBjnI';
+import AddProductDialog from './AddProductDialog';
 
 const Spotlight = () => {
   const [products, setProducts] = useState([]);
-  // const [images, setImages] = useState([]);
   const [categories, setCategories] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,165 +19,72 @@ const Spotlight = () => {
   });
 
   const updateURL = () => {
-    let productURL = 'http://localhost:9999/api';
-    if (filters.company) productURL += `/companies/${filters.company}`;
-    if (filters.category) productURL += `/categories/${filters.category}`;
+    let productURL = 'http://localhost:9999/api/getproducts';
 
-    productURL += '/getproducts';
-    if (filters.price[0] !== 0) productURL += `?minPrice=${filters.price[0]}`;
+    const queryParams = [];
 
-    if (filters.price[1] !== 5000) {
-      if (productURL.includes('?')) productURL += `&maxPrice=${filters.price[1]}`;
-      else productURL += `?maxPrice=${filters.price[1]}`;
-    }
-    if (filters.availability) {
-      if (productURL.includes('?')) productURL += `&availability=${filters.availability}`;
-      else productURL += `?availability=${filters.availability}`;
-    }
+    if (filters.price[0] !== 0) queryParams.push(`minPrice=${filters.price[0]}`);
+    if (filters.price[1] !== 5000) queryParams.push(`maxPrice=${filters.price[1]}`);
+    if (filters.availability) queryParams.push(`availability=${filters.availability}`);
+    if (filters.category) queryParams.push(`category=${filters.category}`);
+    if (filters.company) queryParams.push(`company=${filters.company}`);
+    if (sorting) queryParams.push(`sort=${sorting}`);
+    if (rating) queryParams.push(`minRating=${rating}`);
 
-    console.log("\nCurrent API URL -",productURL,"\n");
+    if (queryParams.length > 0) productURL += `?${queryParams.join('&')}`;
+
+    console.log("\nCurrent API URL -", productURL, "\n");
 
     return productURL;
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchCategories = async () => {
-      fetch('http://localhost:9999/api/categories')
-      .then(response => {
+      try {
+        const response = await fetch('http://localhost:9999/api/categories');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then(data => {
+        const data = await response.json();
         setCategories(data);
-      })
-      .catch(error => {
-        console.error('Error fetching products', error);
-      });
-
-      // try {
-      //   const categoriesResponse = await axios.get('/api/categories');
-      //   setCategories(categoriesResponse.data);
-      // } catch (error) {
-      //   console.error('Error fetching categories', error);
-      // }
+      } catch (error) {
+        console.error('Error fetching categories', error);
+      }
     };
 
     const fetchCompanies = async () => {
-      fetch('http://localhost:9999/api/companies')
-      .then(response => {
+      try {
+        const response = await fetch('http://localhost:9999/api/companies');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then(data => {
+        const data = await response.json();
         setCompanies(data);
-      })
-      .catch(error => {
-        console.error('Error fetching products', error);
-      });
-      // try {
-      //   const companiesResponse = await axios.get('/api/companies');
-      //   setCompanies(companiesResponse.data);
-      // } catch (error) {
-      //   console.error('Error fetching companies', error);
-      // }
+      } catch (error) {
+        console.error('Error fetching companies', error);
+      }
     };
 
     fetchCategories();
     fetchCompanies();
-  },[])
+  }, []);
 
   useEffect(() => {
-    const fetchProducts =() => {
-      // try {
-      //   const response = await axios.get(updateURL());
-      //   setProducts(response.data);
-      // } catch (error) {
-      //   console.error('Error fetching products', error);
-      // }
-      fetch(updateURL())
-      .then(response => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(updateURL());
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then(data => {
+        const data = await response.json();
         setProducts(data);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching products', error);
-      });
+      }
     };
 
-    // const fetchImages = async () => {
-    //   try {
-    //     const imageResponse = await axios.get('https://api.unsplash.com/search/photos', {
-    //       headers: {
-    //         Authorization: `Client-ID ${UnsplashAccessKey}`,
-    //       },
-    //       params: {
-    //         query:'electronics',
-    //         per_page: itemsPerPage,
-    //       },
-    //     });
-    //     console.log("images state\n",typeof(imageResponse.data.results),imageResponse.data.results);
-    //     setImages(imageResponse.data.results);
-    //   } catch (error) {
-    //     console.error('Error fetching images', error);
-    //   }
-    // };
-
-    
-
     fetchProducts();
-    // fetchImages();
-    // fetchCategories();
-    // fetchCompanies();
-  }, [filters]);
-
-  useEffect(() => {
-    let sortedProducts = [...products];
-
-    if (rating > 0) {
-      sortedProducts = sortedProducts.filter(product => product.rating >= rating);
-    }
-
-    switch (sorting) {
-      case 'atoz':
-        sortedProducts.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      case 'ztoa':
-        sortedProducts.sort((a, b) => b.productName.localeCompare(a.productName));
-        break;
-      case 'ratings':
-        sortedProducts.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'discount':
-        sortedProducts.sort((a, b) => b.discount - a.discount);
-        break;
-      case 'price-asc':
-        sortedProducts.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        sortedProducts.sort((a, b) => b.price - a.price);
-        break;
-      default:
-        break;
-    }
-
-    setProducts(sortedProducts);
-  }, [sorting]);
-
-  useEffect(()=>{
-    let rateFilteredProducts=[...products];
-    rateFilteredProducts.filter(product=>product.rating>=rating);
-    setProducts(rateFilteredProducts);
-  },[rating])
-  
+  }, [filters, sorting, rating]);
 
   const handleSorting = (event) => {
     setSorting(event.target.value);
@@ -214,10 +116,22 @@ const Spotlight = () => {
     setCurrentPage(value);
   };
 
-  // const mergedData = products.map((product, index) => ({
-  //   ...product,
-  //   imgURL: images[index % images.length]?.urls?.small || 'defaultImageURL',
-  // }));
+  const handleDelete = async (productId) => {
+      try {
+          const response = await fetch(`http://localhost:9999/api/deleteproduct/${productId}`, {
+              method: 'DELETE',
+          });
+  
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+  
+          // Remove the deleted product from the state
+          setProducts(products.filter(product => product.id !== productId));
+      } catch (error) {
+          console.error('Error deleting product', error);
+      }
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -323,7 +237,6 @@ const Spotlight = () => {
         </Grid>
       </Box>
       <AddProductDialog />
-
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={4}>
           {currentItems.map(product => (
@@ -338,6 +251,8 @@ const Spotlight = () => {
                 price={product.price}
                 productName={product.productName}
                 rating={product.rating}
+                onDelete={() => handleDelete(product._id)}
+                onEdit={() => console.log("edit",product._id)}
               />
             </Grid>
           ))}

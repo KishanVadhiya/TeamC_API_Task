@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const productRouter = require('./routes/product.routes.js');
+const companyRouter = require('./routes/companies.routes.js');
+const categoryRouter = require('./routes/categories.routes.js');
 require('dotenv').config();
 
 const app = express();
@@ -22,6 +24,8 @@ mongoose.Promise = global.Promise;
 
 // API Routes
 app.use('/api', productRouter);
+app.use('/api', companyRouter);
+app.use('/api', categoryRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
